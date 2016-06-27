@@ -1,0 +1,75 @@
+Observable Library
+==================
+
+*Copyright (C) 2016 David Capello*
+
+[![Build Status](https://travis-ci.org/dacap/observable.svg)](https://travis-ci.org/dacap/observable)
+[![MIT Licensed](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE.txt)
+
+Library to use the observer pattern in C++11 programs with
+observable/observer classes or signals/slots.
+
+Features
+--------
+
+* Generate an observable notification/signal from multiple threads
+* Add/remove observers/slots from multiple threads
+* Erase/disconnect an observer/slot from the same observable notification/signal
+
+Observable
+----------
+
+An observable `Widget`:
+
+    #include "obs.h"
+
+    class WidgetObserver {
+    public:
+      virtual ~WidgetObserver() = 0;
+      virtual void onClick() { }
+    };
+
+    class Widget : public obs::observable<WidgetObserver> {
+    public:
+      void processClick() {
+        notify_observers(&WidgetObserver::onClick);
+      }
+    };
+
+An example
+
+    #include "obs.h"
+
+    class ObserveClick : public WidgetObserver {
+    public:
+      void onClick() override {
+        // Do something...
+      }
+    };
+
+    ObserveClick observer;
+    Widget button;
+    button.add_observer(&observer);
+
+Signal
+------
+
+As this library came from
+[Aseprite](https://github.com/aseprite/aseprite), there are some
+signal classes for backward compatibility (`signal0`, `signal1`,
+`signal2`):
+
+    #include "obs.h"
+
+    obs::signal2<void, int, int> sig;
+    sig.connect([](int x, int y){ ... });
+    sig(1, 2); // Generate signal
+
+We're working in a new generic `obs::signal<Callable(Args...)>`.
+
+Tested Compilers
+----------------
+
+* Visual Studio 2015
+* Xcode 7.3.1 (`-std=c++11`)
+* GCC 4.8.4 (`-std=c++11`)
