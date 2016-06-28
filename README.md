@@ -48,6 +48,7 @@ An example
       }
     };
 
+    ...
     ObserveClick observer;
     Widget button;
     button.add_observer(&observer);
@@ -55,18 +56,13 @@ An example
 Signal
 ------
 
-As this library came from
-[Aseprite](https://github.com/aseprite/aseprite), there are some
-signal classes for backward compatibility (`signal0`, `signal1`,
-`signal2`):
-
     #include "obs.h"
 
-    obs::signal2<void, int, int> sig;
-    sig.connect([](int x, int y){ ... });
-    sig(1, 2); // Generate signal
-
-We're working in a new generic `obs::signal<Callable(Args...)>`.
+    int main() {
+      obs::signal<void (int, int)> sig;
+      sig.connect([](int x, int y){ ... });
+      sig(1, 2); // Generate signal
+    }
 
 Tested Compilers
 ----------------
