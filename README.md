@@ -15,6 +15,7 @@ Features
 * Generate an observable notification/signal from multiple threads
 * Add/remove observers/slots from multiple threads
 * Erase/disconnect an observer/slot from the same observable notification/signal
+* Reconnect an observer in the same notification
 
 Observable
 ----------

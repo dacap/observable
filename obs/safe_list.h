@@ -50,9 +50,7 @@ private:
     // m_mutex_nodes is locked.
     int locks;
 
-    // Next node in the list. The last node points to list's m_end,
-    // which is a special list node to indicate the end of the
-    // list. (And m_end->next is nullptr.)
+    // Next node in the list. It's nullptr for the last node in the list.
     node* next;
 
     // Thread used to add the node to the list (i.e. the thread where
@@ -103,17 +101,14 @@ private:
     void unlock_all();
   };
 
-  // Mutex used to modify the linked-list (m_first/last/end and node::next).
+  // Mutex used to modify the linked-list (m_first/last and node::next).
   std::mutex m_mutex_nodes;
 
-  // Indicates the end of the list.
-  node m_end;
-
   // Used to iterate the list from the first element to the last one.
-  node* m_first;
+  node* m_first = nullptr;
 
   // Used to add new items at the end of the list (with push_back()).
-  node* m_last;
+  node* m_last = nullptr;
 
   // "m_ref" indicates the number of times this list is being iterated
   // simultaneously.  When "m_ref" reaches 0, the delete_nodes()
@@ -198,7 +193,7 @@ public:
         }
 
         m_node = m_node->next;
-        while (!m_node->value && m_node != &m_list.m_end)
+        while (m_node && !m_node->value)
           m_node = m_node->next;
       }
       return *this;
@@ -225,16 +220,21 @@ public:
       }
       else {
         // We might try to iterate to the following nodes to get a
-        // m_node->value != nullptr, but we might reach the m_end node
+        // m_node->value != nullptr, but we might reach the last node
         // and should return nullptr anyway (also the next
-        // operator++() call would be an invalid m_end++
-        // call).
+        // operator++() call would be an invalid "++it" call using the
+        // end of the list).
         return nullptr;
       }
     }
 
+    // This can be used only to compare an iterator created from
+    // begin() (in "this" pointer) with end() ("other" argument).
     bool operator!=(const iterator& other) const {
-      return (m_node != other.m_node);
+      if (m_node && other.m_node)
+        return (m_node != other.m_node->next);
+      else
+        return false;
     }
 
   private:
@@ -251,9 +251,7 @@ public:
     iterator* m_next_iterator;
   };
 
-  safe_list() :
-    m_first(&m_end),
-    m_last(&m_end) {
+  safe_list() {
   }
 
   ~safe_list() {
@@ -261,7 +259,7 @@ public:
 #if _DEBUG
     {
       std::lock_guard<std::mutex> lock(m_mutex_nodes);
-      for (node* node=m_first; node!=&m_end; node=node->next) {
+      for (node* node=m_first; node; node=node->next) {
         assert(!node->locks);
       }
     }
@@ -269,15 +267,14 @@ public:
     delete_nodes(true);
 
     assert(m_first == m_last);
-    assert(m_first == &m_end);
+    assert(m_first == nullptr);
   }
 
   void push_back(T* value) {
     node* n = new node(value);
 
     std::lock_guard<std::mutex> lock(m_mutex_nodes);
-    n->next = &m_end;
-    if (m_first == &m_end)
+    if (!m_first)
       m_first = m_last = n;
     else {
       m_last->next = n;
@@ -290,7 +287,7 @@ public:
     ref();
     m_mutex_nodes.lock();
 
-    for (node* node=m_first; node!=&m_end; node=node->next) {
+    for (node* node=m_first; node; node=node->next) {
       if (node->value == value) {
         // We disable the node so it isn't used anymore by other
         // iterators.
@@ -328,17 +325,15 @@ public:
   iterator begin() {
     std::lock_guard<std::mutex> lock(m_mutex_nodes);
     node* first = m_first;
-    assert(first);
     if (first) {
-      while (!first->value && first != &m_end)
+      while (first && !first->value)
         first = first->next;
     }
-    iterator it = iterator(*this, first, m_mutex_nodes);
-    return it;
+    return iterator(*this, first, m_mutex_nodes);
   }
 
   iterator end() {
-    return iterator(*this, &m_end, m_mutex_nodes);
+    return iterator(*this, m_last, m_mutex_nodes);
   }
 
   void ref() {
@@ -365,7 +360,7 @@ private:
     node* prev = nullptr;
     node* next = nullptr;
 
-    for (node* node=m_first; node!=&m_end; node=next) {
+    for (node* node=m_first; node; node=next) {
       next = node->next;
 
       if ((all || !node->value) && !node->locks) {
