@@ -191,10 +191,7 @@ public:
           m_node->unlock(this);
           m_locked = false;
         }
-
         m_node = m_node->next;
-        while (m_node && !m_node->value)
-          m_node = m_node->next;
       }
       return *this;
     }
@@ -324,12 +321,7 @@ public:
 
   iterator begin() {
     std::lock_guard<std::mutex> lock(m_mutex_nodes);
-    node* first = m_first;
-    if (first) {
-      while (first && !first->value)
-        first = first->next;
-    }
-    return iterator(*this, first, m_mutex_nodes);
+    return iterator(*this, m_first, m_mutex_nodes);
   }
 
   iterator end() {
