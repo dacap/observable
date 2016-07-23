@@ -11,7 +11,7 @@ using namespace obs;
 
 class A {
 public:
-  A(signal0<void>& signal, int& value) : m_value(value) {
+  A(signal<void()>& signal, int& value) : m_value(value) {
     m_conn = signal.connect(&A::on_signal, this);
   }
 
@@ -23,7 +23,7 @@ private:
 };
 
 int main() {
-  signal0<void> signal;
+  signal<void()> signal;
   int value = 0;
   {
     A a(signal, value);

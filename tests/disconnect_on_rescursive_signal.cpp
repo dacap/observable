@@ -9,7 +9,7 @@
 using namespace obs;
 
 int main() {
-  signal1<void, int> s;
+  signal<void(int)> s;
   connection c = s.connect(
     [&](int i){
       if (i > 0)

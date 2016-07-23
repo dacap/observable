@@ -31,7 +31,7 @@ public:
 
 int main() {
   const int N = 1;
-  signal1<void, int> signal;
+  signal<void(int)> signal;
   std::vector<std::thread> threads;
 
   A b(1);
