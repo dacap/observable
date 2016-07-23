@@ -55,6 +55,14 @@ public:
     return add_slot(new slot_type(std::forward<Function>(f)));
   }
 
+  template<class Class>
+  connection connect(result_type (Class::*m)(Args...args), Class* t) {
+    return add_slot(new slot_type(
+                      [=](Args...args) -> result_type {
+                        return (t->*m)(std::forward<Args>(args)...);
+                      }));
+  }
+
   virtual void disconnect_slot(slot_base* slot) override {
     m_slots.erase(static_cast<slot_type*>(slot));
   }
@@ -98,6 +106,14 @@ public:
   template<typename Function>
   connection connect(Function&& f) {
     return add_slot(new slot_type(std::forward<Function>(f)));
+  }
+
+  template<class Class>
+  connection connect(void (Class::*m)(Args...args), Class* t) {
+    return add_slot(new slot_type(
+                      [=](Args...args) {
+                        (t->*m)(std::forward<Args>(args)...);
+                      }));
   }
 
   virtual void disconnect_slot(slot_base* slot) override {
