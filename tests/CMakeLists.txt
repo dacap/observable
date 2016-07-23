@@ -7,6 +7,7 @@ function(add_observable_test name)
   target_link_libraries(${name} obs)
 endfunction()
 
+add_observable_test(count_signals)
 add_observable_test(disconnect_on_dtor)
 add_observable_test(disconnect_on_rescursive_signal)
 add_observable_test(disconnect_on_signal)
