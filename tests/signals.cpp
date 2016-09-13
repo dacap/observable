@@ -9,6 +9,17 @@
 
 using namespace obs;
 
+struct Entity {
+  int a;
+  Entity() : a(0) { }
+  void set_a(int v) { a = v; }
+  int set_a_return_old(int v) {
+    int old = a;
+    a = v;
+    return old;
+  }
+};
+
 int main() {
   {
     signal<void()> sig;
@@ -41,6 +52,26 @@ int main() {
     EXPECT_EQ(1, a);
     EXPECT_EQ(2, b);
     EXPECT_EQ(3.4, c);
+  }
+
+  {
+    signal<void(int)> sig;
+    Entity ent;
+    sig.connect(&Entity::set_a, &ent);
+    EXPECT_EQ(ent.a, 0);
+    sig(32);
+    EXPECT_EQ(ent.a, 32);
+  }
+
+  {
+    signal<int(int)> sig;
+    Entity ent;
+    sig.connect(&Entity::set_a_return_old, &ent);
+    ent.a = 2;
+    EXPECT_EQ(ent.a, 2);
+    int old = sig(32);
+    EXPECT_EQ(old, 2);
+    EXPECT_EQ(ent.a, 32);
   }
 
   // Alternative signal sintax
