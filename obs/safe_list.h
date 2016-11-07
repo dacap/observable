@@ -101,7 +101,7 @@ private:
     void unlock_all();
   };
 
-  // Mutex used to modify the linked-list (m_first/last and node::next).
+  // Mutex used to modify the linked-list (m_first/m_last and node::next).
   std::mutex m_mutex_nodes;
 
   // Used to iterate the list from the first element to the last one.
@@ -143,7 +143,7 @@ public:
   public:
     friend struct node;
 
-    iterator(safe_list& list, node* node, std::mutex& mutex)
+    iterator(safe_list& list, node* node)
       : m_list(list),
         m_node(node),
         m_locked(false),
@@ -321,11 +321,11 @@ public:
 
   iterator begin() {
     std::lock_guard<std::mutex> lock(m_mutex_nodes);
-    return iterator(*this, m_first, m_mutex_nodes);
+    return iterator(*this, m_first);
   }
 
   iterator end() {
-    return iterator(*this, m_last, m_mutex_nodes);
+    return iterator(*this, m_last);
   }
 
   void ref() {
