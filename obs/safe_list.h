@@ -10,6 +10,7 @@
 
 #include <cassert>
 #include <chrono>
+#include <condition_variable>
 #include <iterator>
 #include <mutex>
 #include <thread>
