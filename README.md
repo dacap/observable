@@ -1,7 +1,7 @@
 Observable Library
 ==================
 
-*Copyright (C) 2016 David Capello*
+*Copyright (C) 2016-2017 David Capello*
 
 [![Build Status](https://travis-ci.org/dacap/observable.svg)](https://travis-ci.org/dacap/observable)
 [![MIT Licensed](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE.txt)
@@ -22,47 +22,53 @@ Observable
 
 An observable `Widget`:
 
-    #include "obs.h"
+```cpp
+#include "obs.h"
 
-    class WidgetObserver {
-    public:
-      virtual ~WidgetObserver() = 0;
-      virtual void onClick() { }
-    };
+class WidgetObserver {
+public:
+  virtual ~WidgetObserver() = 0;
+  virtual void onClick() { }
+};
 
-    class Widget : public obs::observable<WidgetObserver> {
-    public:
-      void processClick() {
-        notify_observers(&WidgetObserver::onClick);
-      }
-    };
+class Widget : public obs::observable<WidgetObserver> {
+public:
+  void processClick() {
+    notify_observers(&WidgetObserver::onClick);
+  }
+};
+```
 
 An example
 
-    #include "obs.h"
+```cpp
+#include "obs.h"
 
-    class ObserveClick : public WidgetObserver {
-    public:
-      void onClick() override {
-        // Do something...
-      }
-    };
+class ObserveClick : public WidgetObserver {
+public:
+  void onClick() override {
+    // Do something...
+  }
+};
 
-    ...
-    ObserveClick observer;
-    Widget button;
-    button.add_observer(&observer);
+...
+ObserveClick observer;
+Widget button;
+button.add_observer(&observer);
+```
 
 Signal
 ------
 
-    #include "obs.h"
+```cpp
+#include "obs.h"
 
-    int main() {
-      obs::signal<void (int, int)> sig;
-      sig.connect([](int x, int y){ ... });
-      sig(1, 2); // Generate signal
-    }
+int main() {
+  obs::signal<void (int, int)> sig;
+  sig.connect([](int x, int y){ ... });
+  sig(1, 2); // Generate signal
+}
+```
 
 Tested Compilers
 ----------------
