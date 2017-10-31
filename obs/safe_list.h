@@ -234,9 +234,9 @@ public:
 
     // This can be used only to compare an iterator created from
     // begin() (in "this" pointer) with end() ("other" argument).
-    bool operator!=(const iterator& other) const {
-      if (m_node && other.m_node)
-        return (m_node != other.m_node->next);
+    bool operator!=(const iterator&) const {
+      if (m_node)
+        return (m_node != nullptr);
       else
         return false;
     }
