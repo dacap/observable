@@ -124,6 +124,9 @@ private:
   // value = nullptr).
   bool m_delete_nodes = false;
 
+  // Used to notify when a node's locks is zero so erase() can continue.
+  std::condition_variable m_delete_cv;
+
 public:
 
   // A STL-like iterator for safe_list. It is not a fully working
@@ -190,6 +193,10 @@ public:
         if (m_locked) {
           m_node->unlock(this);
           m_locked = false;
+
+          // node's locks count is zero
+          if (m_node->locks == 0)
+            m_list.m_delete_cv.notify_all();
         }
         m_node = m_node->next;
       }
@@ -282,40 +289,36 @@ public:
   void erase(T* value) {
     // We add a ref to avoid calling delete_nodes().
     ref();
-    m_mutex_nodes.lock();
+    {
+      std::unique_lock<std::mutex> lock(m_mutex_nodes);
 
-    for (node* node=m_first; node; node=node->next) {
-      if (node->value == value) {
-        // We disable the node so it isn't used anymore by other
-        // iterators.
-        assert(node->value);
-        node->unlock_all();
-        node->value = nullptr;
-        m_delete_nodes = true;
+      for (node* node=m_first; node; node=node->next) {
+        if (node->value == value) {
+          // We disable the node so it isn't used anymore by other
+          // iterators.
+          assert(node->value);
+          node->unlock_all();
+          node->value = nullptr;
+          m_delete_nodes = true;
 
-        // In this case we should wait until the node is unlocked,
-        // because after erase() the client could be deleting the
-        // value that we are using in other thread.
-        if (node->locks) {
-          m_mutex_nodes.unlock();
+          // In this case we should wait until the node is unlocked,
+          // because after erase() the client could be deleting the
+          // value that we are using in other thread.
+          if (node->locks) {
+            // Wait until the node is completely unlocked by other
+            // threads.
+            m_delete_cv.wait(lock, [node]{ return node->locks == 0; });
+          }
 
-          // Wait until the node is completely unlocked by other
-          // threads.
-          while (node->locks)
-            std::this_thread::sleep_for(std::chrono::milliseconds(1));
+          assert(node->locks == 0);
 
-          // Lock again the list.
-          m_mutex_nodes.lock();
+          // The node will be finally deleted when we leave the
+          // iteration loop (m_ref==0, i.e. the end() iterator is
+          // destroyed)
+          break;
         }
-
-        // The node will be finally deleted when we leave the
-        // iteration loop (m_ref==0, i.e. the end() iterator is
-        // destroyed)
-        break;
       }
     }
-
-    m_mutex_nodes.unlock();
     unref();
   }
 
