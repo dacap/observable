@@ -103,7 +103,7 @@ private:
   };
 
   // Mutex used to modify the linked-list (m_first/m_last and node::next).
-  std::mutex m_mutex_nodes;
+  mutable std::mutex m_mutex_nodes;
 
   // Used to iterate the list from the first element to the last one.
   node* m_first = nullptr;
@@ -274,6 +274,11 @@ public:
 
     assert(m_first == m_last);
     assert(m_first == nullptr);
+  }
+
+  bool empty() const {
+    std::lock_guard<std::mutex> lock(m_mutex_nodes);
+    return (m_first == m_last);
   }
 
   void push_back(T* value) {
