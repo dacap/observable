@@ -1,5 +1,5 @@
 // Observable Library
-// Copyright (c) 2016-2017 David Capello
+// Copyright (c) 2016-2018 David Capello
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -42,7 +42,7 @@ int main() {
     if ((i%2) == 0) {
       threads.push_back(
         std::thread(
-          [&signal](){
+          [&signal, N](){
             for (int c=100*N; c>0; --c) {
               signal(c);
             }
@@ -52,7 +52,7 @@ int main() {
     else {
       threads.push_back(
         std::thread(
-          [&signal, i](){
+          [&signal, i, N](){
             A a(i);
             scoped_connection conn = signal.connect(&A::on_signal, &a);
             for (int c=10*N; c>0; --c) {

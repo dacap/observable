@@ -1,9 +1,10 @@
 Observable Library
 ==================
 
-*Copyright (C) 2016-2017 David Capello*
+*Copyright (C) 2016-2018 David Capello*
 
 [![Build Status](https://travis-ci.org/dacap/observable.svg)](https://travis-ci.org/dacap/observable)
+[![Build status](https://ci.appveyor.com/api/projects/status/jcur6dbi1vw6hrbw?svg=true)](https://ci.appveyor.com/project/dacap/observable)
 [![MIT Licensed](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE.txt)
 
 Library to use the observer pattern in C++11 programs with
