@@ -41,9 +41,7 @@ public:
   }
 
   signal(const signal&) { }
-  signal operator=(const signal&) {
-    return *this;
-  }
+  signal& operator=(const signal&) { return *this; }
 
   connection add_slot(slot_type* s) {
     m_slots.push_back(s);
@@ -94,9 +92,7 @@ public:
   }
 
   signal(const signal&) { }
-  signal operator=(const signal&) {
-    return *this;
-  }
+  signal& operator=(const signal&) { return *this; }
 
   connection add_slot(slot_type* s) {
     m_slots.push_back(s);
