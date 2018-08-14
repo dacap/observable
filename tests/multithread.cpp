@@ -34,7 +34,7 @@ int main() {
   signal<void(int)> signal;
   std::vector<std::thread> threads;
 
-  int count = 0;
+  std::atomic<int> count = { 0 };
   signal.connect([&count](int){ ++count; });
 
   A b(1);
