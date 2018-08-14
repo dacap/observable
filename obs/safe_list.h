@@ -190,9 +190,7 @@ public:
       }
     }
 
-    // Unlocks the current m_node and goes to the next enabled
-    // (node::value != nullptr) node. It doesn't lock the new found
-    // node, operator*() is the member function that locks the node.
+    // Unlocks the current m_node and goes to the next one and locks it.
     iterator& operator++() {
       std::lock_guard<std::mutex> l(m_list.m_mutex_nodes);
       assert(m_node);
@@ -202,37 +200,21 @@ public:
         // Go to the next node.
         m_node = m_node->next;
 
-        // Lock the new node that we're pointing to.
+        // Lock the new node that we're pointing to now.
         if (m_node)
           lock();
       }
       return *this;
     }
 
-    // Tries to lock the node and returns it's value. If the node was
-    // already deleted, it will return nullptr and the client will
-    // need to call operator++() again. We cannot guarantee that this
-    // function will return a value != nullptr.
-    T* operator*() {
-      std::lock_guard<std::mutex> l(m_list.m_mutex_nodes);
-      assert(m_node);
-      if (m_node->value) {
-        // Add a lock to m_node before we access to its value. It's
-        // used to keep track of how many iterators are using the node
-        // in the list.
-        lock();
-
-        assert(m_node->value);
-        return m_node->value;
-      }
-      else {
-        // We might try to iterate to the following nodes to get a
-        // m_node->value != nullptr, but we might reach the last node
-        // and should return nullptr anyway (also the next
-        // operator++() call would be an invalid "++it" call using the
-        // end of the list).
-        return nullptr;
-      }
+    // Returns the node's value. The node at this point is locked.
+    //
+    // If the node was already deleted, it will return nullptr and the
+    // client will need to call operator++() again. We cannot
+    // guarantee that this function will return a value != nullptr.
+    T* operator*() const {
+      assert(m_node && m_locked);
+      return m_value;
     }
 
     // This can be used only to compare an iterator created from
@@ -246,12 +228,16 @@ public:
     }
 
   private:
+    // Adds a lock to m_node before we access to its value. It's used
+    // to keep track of how many iterators are using the node in the
+    // list.
     void lock() {
       if (m_locked)
         return;
 
       assert(m_node);
       m_node->lock(this);
+      m_value = m_node->value;
       m_locked = true;
     }
 
@@ -261,6 +247,7 @@ public:
 
       assert(m_node);
       m_node->unlock(this);
+      m_value = nullptr;
       m_locked = false;
 
       // node's locks count is zero
@@ -272,6 +259,9 @@ public:
 
     // Current node being iterated. It is never nullptr.
     node* m_node;
+
+    // Cached value of m_node->value
+    T* m_value = nullptr;
 
     // True if this iterator has added a lock to the "m_node"
     bool m_locked = false;
