@@ -44,9 +44,7 @@ private:
     T* value;
 
     // Number of locks for this node, it means the number of iterators
-    // being used and currently pointing to this node. (I.e. number of
-    // times an iterator::operator*() was called for this node and the
-    // iterator is still alive.)
+    // being used and currently pointing to this node.
     //
     // This variable is incremented/decremented only when
     // m_mutex_nodes is locked.
@@ -154,6 +152,10 @@ public:
       : m_list(list),
         m_node(node) {
       m_list.ref();
+
+      // Lock the node because this iterator is pointing to it.
+      if (m_node)
+        lock();
     }
 
     // Cannot copy iterators
@@ -169,6 +171,11 @@ public:
     }
 
     ~iterator() {
+      if (m_node) {
+        std::lock_guard<std::mutex> l(m_list.m_mutex_nodes);
+        unlock();
+      }
+
       assert(!m_locked);
       m_list.unref();
     }
@@ -187,18 +194,17 @@ public:
     // (node::value != nullptr) node. It doesn't lock the new found
     // node, operator*() is the member function that locks the node.
     iterator& operator++() {
-      std::lock_guard<std::mutex> lock(m_list.m_mutex_nodes);
+      std::lock_guard<std::mutex> l(m_list.m_mutex_nodes);
       assert(m_node);
       if (m_node) {
-        if (m_locked) {
-          m_node->unlock(this);
-          m_locked = false;
+        unlock();
 
-          // node's locks count is zero
-          if (m_node->locks == 0)
-            m_list.m_delete_cv.notify_all();
-        }
+        // Go to the next node.
         m_node = m_node->next;
+
+        // Lock the new node that we're pointing to.
+        if (m_node)
+          lock();
       }
       return *this;
     }
@@ -208,16 +214,13 @@ public:
     // need to call operator++() again. We cannot guarantee that this
     // function will return a value != nullptr.
     T* operator*() {
-      std::lock_guard<std::mutex> lock(m_list.m_mutex_nodes);
+      std::lock_guard<std::mutex> l(m_list.m_mutex_nodes);
       assert(m_node);
       if (m_node->value) {
         // Add a lock to m_node before we access to its value. It's
         // used to keep track of how many iterators are using the node
         // in the list.
-        if (!m_locked) {
-          m_node->lock(this);
-          m_locked = true;
-        }
+        lock();
 
         assert(m_node->value);
         return m_node->value;
@@ -235,7 +238,7 @@ public:
     // This can be used only to compare an iterator created from
     // begin() (in "this" pointer) with end() ("other" argument).
     bool operator!=(const iterator& other) const {
-      std::lock_guard<std::mutex> lock(m_list.m_mutex_nodes);
+      std::lock_guard<std::mutex> l(m_list.m_mutex_nodes);
       if (m_node && other.m_node)
         return (m_node != other.m_node->next);
       else
@@ -243,6 +246,28 @@ public:
     }
 
   private:
+    void lock() {
+      if (m_locked)
+        return;
+
+      assert(m_node);
+      m_node->lock(this);
+      m_locked = true;
+    }
+
+    void unlock() {
+      if (!m_locked)
+        return;
+
+      assert(m_node);
+      m_node->unlock(this);
+      m_locked = false;
+
+      // node's locks count is zero
+      if (m_node->locks == 0)
+        m_list.m_delete_cv.notify_all();
+    }
+
     safe_list& m_list;
 
     // Current node being iterated. It is never nullptr.
@@ -261,14 +286,6 @@ public:
 
   ~safe_list() {
     assert(m_ref == 0);
-#if !defined(NDEBUG)
-    {
-      std::lock_guard<std::mutex> lock(m_mutex_nodes);
-      for (node* node=m_first; node; node=node->next) {
-        assert(!node->locks);
-      }
-    }
-#endif
     delete_nodes(true);
 
     assert(m_first == m_last);
@@ -368,7 +385,7 @@ private:
     for (node* node=m_first; node; node=next) {
       next = node->next;
 
-      if ((all || !node->value) && !node->locks) {
+      if (all || (!node->value && !node->locks)) {
         if (prev) {
           prev->next = next;
           if (node == m_last)
@@ -380,10 +397,12 @@ private:
             m_last = m_first;
         }
 
+        assert(!node->locks);
         delete node;
       }
-      else
+      else {
         prev = node;
+      }
     }
 
     m_delete_nodes = false;
