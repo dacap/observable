@@ -34,6 +34,9 @@ int main() {
   signal<void(int)> signal;
   std::vector<std::thread> threads;
 
+  int count = 0;
+  signal.connect([&count](int){ ++count; });
+
   A b(1);
   signal.connect(&A::on_signal, &b);
 
@@ -66,4 +69,6 @@ int main() {
 
   for (auto& thread : threads)
     thread.join();
+
+  std::cout << "Count = " << count << "\n";
 }
