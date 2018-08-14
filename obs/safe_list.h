@@ -94,8 +94,8 @@ private:
     // called.
     void unlock(iterator* it);
 
-    // Notify to all iterators in the "creator thread" that they don't
-    // own a node lock anymore. It's used to erase() the node.
+    // Notifies to all iterators in the "creator thread" that they
+    // don't own a node lock anymore. It's used to erase() the node.
     void unlock_all();
   };
 
