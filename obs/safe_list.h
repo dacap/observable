@@ -346,13 +346,16 @@ public:
   }
 
   void unref() {
-    std::lock_guard<std::mutex> lock(m_mutex_ref);
-    assert(m_ref > 0);
-    --m_ref;
-    if (m_ref == 0 && m_delete_nodes) {
-      delete_nodes(false);
-      m_delete_nodes = false;
+    bool call_delete = false;
+    {
+      std::lock_guard<std::mutex> lock(m_mutex_ref);
+      assert(m_ref > 0);
+      --m_ref;
+      if (m_ref == 0)
+        call_delete = true;
     }
+    if (call_delete)
+      delete_nodes(false);
   }
 
 private:
@@ -360,6 +363,10 @@ private:
   // if it's false, it deletes only nodes with value == nullptr, which
   // are nodes that were disabled
   void delete_nodes(bool all) {
+    std::lock_guard<std::mutex> lock(m_mutex_nodes);
+    if (!m_delete_nodes)
+      return;
+
     node* prev = nullptr;
     node* next = nullptr;
 
@@ -383,6 +390,8 @@ private:
       else
         prev = node;
     }
+
+    m_delete_nodes = false;
   }
 
 };
