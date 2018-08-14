@@ -140,9 +140,15 @@ public:
   // 3. When the iterator is incremented (operator++) it unlocks the
   //    previous node and goes to the next one (the next node is not
   //    locked until we use operator*() again)
-  class iterator : public std::iterator<std::forward_iterator_tag, T*> {
+  class iterator {
   public:
     friend struct node;
+
+    typedef T*                        value_type;
+    typedef std::ptrdiff_t            difference_type;
+    typedef T**                       pointer;
+    typedef T*&                       reference;
+    typedef std::forward_iterator_tag iterator_category;
 
     iterator(safe_list& list, node* node)
       : m_list(list),
