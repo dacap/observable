@@ -132,12 +132,12 @@ public:
   // The iterator works in the following way:
   //
   // 1. It adds a new reference (ref()/unref()) to the safe_list so
-  //    nodes are not deleted while the iterator is alive
-  // 2. operator*() locks the node and returns its value, when a node
-  //    is locked we can use it's "value" (call a slot/observer)
-  // 3. When the iterator is incremented (operator++) it unlocks the
-  //    previous node and goes to the next one (the next node is not
-  //    locked until we use operator*() again)
+  //    nodes are not deleted while the iterator is alive.
+  // 2. It "locks" the given node in iterator() ctor so the node is
+  //    not deleted when there is an existent iterator pointing to it.
+  // 3. operator*() returns the node's value.
+  // 4. When the iterator is incremented (operator++) it unlocks the
+  //    previous node, goes to the next one, and locks it.
   class iterator {
   public:
     friend struct node;
