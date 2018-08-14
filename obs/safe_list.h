@@ -8,6 +8,7 @@
 #define OBS_SAFE_LIST_H_INCLUDED
 #pragma once
 
+#include <atomic>
 #include <cassert>
 #include <chrono>
 #include <condition_variable>
@@ -114,8 +115,7 @@ private:
   // with value=nullptr). While "m_ref" > 0 it means that we shouldn't
   // remove nodes (so we can ensure that an actual node reference is
   // still valid until the next unref()).
-  std::mutex m_mutex_ref;
-  int m_ref = 0;
+  std::atomic<int> m_ref = { 0 };
 
   // Flag that indicates if some node was erased and delete_nodes()
   // should iterate the whole list to clean disabled nodes (nodes with
@@ -337,21 +337,17 @@ public:
   }
 
   void ref() {
-    std::lock_guard<std::mutex> lock(m_mutex_ref);
-    ++m_ref;
-    assert(m_ref > 0);
+#if !defined(NDEBUG)
+    int v =
+#endif
+    m_ref.fetch_add(1);
+    assert(v >= 0);
   }
 
   void unref() {
-    bool call_delete = false;
-    {
-      std::lock_guard<std::mutex> lock(m_mutex_ref);
-      assert(m_ref > 0);
-      --m_ref;
-      if (m_ref == 0)
-        call_delete = true;
-    }
-    if (call_delete)
+    int v = m_ref.fetch_sub(1);
+    assert(v >= 1);
+    if (v == 1)
       delete_nodes(false);
   }
 
