@@ -49,10 +49,10 @@ private:
     //
     // This variable is incremented/decremented only when
     // m_mutex_nodes is locked.
-    int locks;
+    int locks = 0;
 
     // Next node in the list. It's nullptr for the last node in the list.
-    node* next;
+    node* next = nullptr;
 
     // Thread used to add the node to the list (i.e. the thread where
     // safe_list::push_back() was used). We suppose that the same
@@ -62,14 +62,11 @@ private:
     // Pointer to the first iterator that locked this node in the same
     // thread it was created. It is used to unlock() the node when
     // erase() is called in the same iterator loop/call.
-    iterator* creator_thread_iterator;
+    iterator* creator_thread_iterator = nullptr;
 
     node(T* value = nullptr)
       : value(value),
-        locks(0),
-        next(nullptr),
-        creator_thread(std::this_thread::get_id()),
-        creator_thread_iterator(nullptr) {
+        creator_thread(std::this_thread::get_id()) {
     }
 
     node(const node&) = delete;
