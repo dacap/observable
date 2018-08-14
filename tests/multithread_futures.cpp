@@ -7,6 +7,8 @@
 #include "obs/signal.h"
 #include "test.h"
 
+#include <algorithm>
+#include <ctime>
 #include <future>
 #include <thread>
 #include <vector>
@@ -14,24 +16,34 @@
 using namespace obs;
 
 int main() {
-  obs::signal<double()> sig;
+  signal<void()> sig;
+  std::time_t t = std::time(nullptr);
 
-  auto context =
-    [&sig](){
-      double count = 0.0;
-      for (int i=0; i<64; ++i) {
-        std::vector<obs::scoped_connection> conns(256);
-        for (auto& conn : conns)
-          conn = sig.connect([](){ return 1.0; });
-        count += sig();
+  auto func =
+    [&sig, t](){
+      int count = 0;
+      while ((std::time(nullptr) - t) < 5) {
+        std::vector<scoped_connection> conns(32);
+        for (auto& conn : conns) {
+          conn = sig.connect(
+            [&sig, &count](){ });
+          ++count;
+          if (std::time(nullptr) - t >= 5)
+            break;
+        }
       }
       return count;
     };
 
-  std::vector<std::future<double>> futures;
-  for (int i = std::thread::hardware_concurrency() / 2; i > 0; --i)
-    futures.emplace_back(std::async(std::launch::async, context));
+  std::vector<std::future<int>> futures;
+  int n = std::max<int>(1, std::thread::hardware_concurrency()/2);
+  while (n--)
+    futures.emplace_back(std::async(std::launch::async, func));
+
+  int count = 0;
   for (auto& f : futures)
-    f.get();
+    count += f.get();
+
+  std::cout << "Count = " << count << "\n";
   return 0;
 }
