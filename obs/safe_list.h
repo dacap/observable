@@ -364,7 +364,7 @@ private:
   // are nodes that were disabled
   void delete_nodes(bool all) {
     std::lock_guard<std::mutex> lock(m_mutex_nodes);
-    if (!m_delete_nodes)
+    if (!all && !m_delete_nodes)
       return;
 
     node* prev = nullptr;
