@@ -262,7 +262,7 @@ public:
 
   ~safe_list() {
     assert(m_ref == 0);
-#if _DEBUG
+#if !defined(NDEBUG)
     {
       std::lock_guard<std::mutex> lock(m_mutex_nodes);
       for (node* node=m_first; node; node=node->next) {
