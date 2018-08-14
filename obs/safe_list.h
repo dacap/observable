@@ -146,9 +146,7 @@ public:
 
     iterator(safe_list& list, node* node)
       : m_list(list),
-        m_node(node),
-        m_locked(false),
-        m_next_iterator(nullptr) {
+        m_node(node) {
       m_list.ref();
     }
 
@@ -159,9 +157,7 @@ public:
     // We can only move iterators
     iterator(iterator&& other)
       : m_list(other.m_list),
-        m_node(other.m_node),
-        m_locked(false),
-        m_next_iterator(nullptr) {
+        m_node(other.m_node) {
       assert(!other.m_locked);
       m_list.ref();
     }
@@ -247,11 +243,11 @@ public:
     node* m_node;
 
     // True if this iterator has added a lock to the "m_node"
-    bool m_locked;
+    bool m_locked = false;
 
     // Next iterator locking the same "m_node" from its creator
     // thread.
-    iterator* m_next_iterator;
+    iterator* m_next_iterator = nullptr;
   };
 
   safe_list() {
