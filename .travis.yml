@@ -6,19 +6,30 @@ matrix:
       osx_image: xcode8
       env:
         - SANITIZER=
+        - BUILD_TYPE=Debug
+        - BENCHMARKS=OFF
     - os: osx
       osx_image: xcode8
       env:
         - SANITIZER=-fsanitize=thread
+        - BUILD_TYPE=Debug
+        - BENCHMARKS=OFF
     - os: osx
       osx_image: xcode9
       env:
         - SANITIZER=
+        - BUILD_TYPE=Debug
+        - BENCHMARKS=OFF
     - os: osx
       osx_image: xcode9
       env:
         - SANITIZER=-fsanitize=thread
+        - BUILD_TYPE=Debug
+        - BENCHMARKS=OFF
     - os: linux
+      env:
+        - BUILD_TYPE=Debug
+        - BENCHMARKS=OFF
     - os: linux
       addons:
         apt:
@@ -27,8 +38,10 @@ matrix:
           packages:
             - g++-4.9
       env:
-         - MATRIX_EVAL="CC=gcc-4.9 && CXX=g++-4.9"
-         - SANITIZER=
+        - MATRIX_EVAL="CC=gcc-4.9 && CXX=g++-4.9"
+        - SANITIZER=
+        - BUILD_TYPE=Debug
+        - BENCHMARKS=OFF
     - os: linux
       addons:
         apt:
@@ -37,8 +50,10 @@ matrix:
           packages:
             - g++-5
       env:
-         - MATRIX_EVAL="CC=gcc-5 && CXX=g++-5"
-         - SANITIZER=
+        - MATRIX_EVAL="CC=gcc-5 && CXX=g++-5"
+        - SANITIZER=
+        - BUILD_TYPE=Debug
+        - BENCHMARKS=OFF
     - os: linux
       addons:
         apt:
@@ -49,6 +64,8 @@ matrix:
       env:
         - MATRIX_EVAL="CC=gcc-6 && CXX=g++-6"
         - SANITIZER=
+        - BUILD_TYPE=Debug
+        - BENCHMARKS=OFF
     - os: linux
       addons:
         apt:
@@ -59,6 +76,20 @@ matrix:
       env:
         - MATRIX_EVAL="CC=gcc-7 && CXX=g++-7"
         - SANITIZER=
+        - BUILD_TYPE=Debug
+        - BENCHMARKS=OFF
+    - os: linux
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - g++-7
+      env:
+        - MATRIX_EVAL="CC=gcc-7 && CXX=g++-7"
+        - SANITIZER=
+        - BUILD_TYPE=Release
+        - BENCHMARKS=ON
 
 before_install:
     - eval "${MATRIX_EVAL}"
@@ -66,10 +97,12 @@ before_install:
 before_script:
   - mkdir build
   - cd build
-  - cmake .. -DCMAKE_BUILD_TYPE=Debug
+  - cmake .. -DCMAKE_BUILD_TYPE=$BUILD_TYPE
              -DCMAKE_CXX_FLAGS=$SANITIZER
              -DCMAKE_EXE_LINKER_FLAGS=$SANITIZER
+             -DOBSERVABLE_BENCHMARKS=$BENCHMARKS
 
 script:
   - make
   - ctest --output-on-failure
+  - if [[ "$BENCHMARKS" == "ON" ]] ; then ./benchmarks/obs_benchmarks ; fi

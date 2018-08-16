@@ -4,7 +4,8 @@
 cmake_minimum_required(VERSION 3.2)
 
 project(observable CXX)
-option(OBSERVABLE_TESTS "Compile observable tests" on)
+option(OBSERVABLE_TESTS "Compile observable tests" ON)
+option(OBSERVABLE_BENCHMARKS "Compile observable benchmarks" OFF)
 
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -20,4 +21,8 @@ add_library(obs obs/connection.cpp)
 if(OBSERVABLE_TESTS)
   enable_testing()
   add_subdirectory(tests)
+endif()
+
+if(OBSERVABLE_BENCHMARKS)
+  add_subdirectory(benchmarks)
 endif()
