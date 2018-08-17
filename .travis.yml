@@ -92,7 +92,7 @@ matrix:
         - BENCHMARKS=ON
 
 before_install:
-    - eval "${MATRIX_EVAL}"
+  - eval "${MATRIX_EVAL}"
 
 before_script:
   - mkdir build
