@@ -45,7 +45,7 @@ int main() {
     if ((i%2) == 0) {
       threads.push_back(
         std::thread(
-          [&signal, N](){
+          [&signal](){
             for (int c=100*N; c>0; --c) {
               signal(c);
             }
@@ -55,7 +55,7 @@ int main() {
     else {
       threads.push_back(
         std::thread(
-          [&signal, i, N](){
+          [&signal, i](){
             A a(i);
             scoped_connection conn = signal.connect(&A::on_signal, &a);
             for (int c=10*N; c>0; --c) {

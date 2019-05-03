@@ -25,8 +25,7 @@ int main() {
       while ((std::time(nullptr) - t) < 5) {
         std::vector<scoped_connection> conns(32);
         for (auto& conn : conns) {
-          conn = sig.connect(
-            [&sig, &count](){ });
+          conn = sig.connect([](){ });
           ++count;
           if (std::time(nullptr) - t >= 5)
             break;
