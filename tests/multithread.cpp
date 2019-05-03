@@ -11,6 +11,8 @@
 
 using namespace obs;
 
+const int N = 1;
+
 class A {
   int m_code;
 
@@ -30,7 +32,6 @@ public:
 };
 
 int main() {
-  const int N = 1;
   signal<void(int)> signal;
   std::vector<std::thread> threads;
 
