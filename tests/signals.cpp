@@ -7,8 +7,6 @@
 #include "obs/signal.h"
 #include "test.h"
 
-using namespace obs;
-
 struct Entity {
   int a;
   Entity() : a(0) { }
@@ -22,7 +20,7 @@ struct Entity {
 
 int main() {
   {
-    signal<void()> sig;
+    obs::signal<void()> sig;
     int c = 0;
     sig.connect([&](){ ++c; });
     sig.connect([&](){ ++c; });
@@ -32,7 +30,7 @@ int main() {
   }
 
   {
-    signal<void(int)> sig;
+    obs::signal<void(int)> sig;
     int x = 2;
     sig.connect([&x](int y){ x += y; });
     sig(3);
@@ -41,7 +39,7 @@ int main() {
   }
 
   {
-    signal<void(int, int)> sig;
+    obs::signal<void(int, int)> sig;
     int c = 0;
     sig.connect([&](int x, int y){ c = x+y; });
     sig(3, 4);
@@ -49,7 +47,7 @@ int main() {
   }
 
   {
-    signal<int()> sig;
+    obs::signal<int()> sig;
     sig.connect([](){ return 1; });
     sig.connect([](){ return 4; });
     int res = sig();
@@ -59,7 +57,7 @@ int main() {
   {
     int a=0, b=0;
     double c=0.0;
-    signal<void(int, int, double)> sig;
+    obs::signal<void(int, int, double)> sig;
     sig.connect([&](int x, int y, double z) {
                   a = x;
                   b = y;
@@ -72,7 +70,7 @@ int main() {
   }
 
   {
-    signal<void(int)> sig;
+    obs::signal<void(int)> sig;
     Entity ent;
     sig.connect(&Entity::set_a, &ent);
     EXPECT_EQ(ent.a, 0);
@@ -81,7 +79,7 @@ int main() {
   }
 
   {
-    signal<int(int)> sig;
+    obs::signal<int(int)> sig;
     Entity ent;
     sig.connect(&Entity::set_a_return_old, &ent);
     ent.a = 2;

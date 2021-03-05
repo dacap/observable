@@ -9,8 +9,6 @@
 
 #include <vector>
 
-using namespace obs;
-
 const int N = 1;
 
 class A {
@@ -32,7 +30,7 @@ public:
 };
 
 int main() {
-  signal<void(int)> signal;
+  obs::signal<void(int)> signal;
   std::vector<std::thread> threads;
 
   std::atomic<int> count = { 0 };
@@ -58,7 +56,7 @@ int main() {
         std::thread(
           [&signal, i](){
             A a(i);
-            scoped_connection conn = signal.connect(&A::on_signal, &a);
+            obs::scoped_connection conn = signal.connect(&A::on_signal, &a);
             for (int c=10*N; c>0; --c) {
               signal(i);
             }

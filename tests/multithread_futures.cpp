@@ -13,17 +13,15 @@
 #include <thread>
 #include <vector>
 
-using namespace obs;
-
 int main() {
-  signal<void()> sig;
+  obs::signal<void()> sig;
   std::time_t t = std::time(nullptr);
 
   auto func =
     [&sig, t](){
       int count = 0;
       while ((std::time(nullptr) - t) < 5) {
-        std::vector<scoped_connection> conns(32);
+        std::vector<obs::scoped_connection> conns(32);
         for (auto& conn : conns) {
           conn = sig.connect([](){ });
           ++count;

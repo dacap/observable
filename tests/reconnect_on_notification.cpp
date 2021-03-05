@@ -7,15 +7,13 @@
 #include "obs/observable.h"
 #include "test.h"
 
-using namespace obs;
-
 class Observer {
 public:
   virtual ~Observer() { }
   virtual void on_event() { }
 };
 
-class Observable : public observable<Observer> {
+class Observable : public obs::observable<Observer> {
 public:
   Observable() { }
 };

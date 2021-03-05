@@ -7,23 +7,21 @@
 #include "obs/signal.h"
 #include "test.h"
 
-using namespace obs;
-
 class A {
 public:
-  A(signal<void()>& signal, int& value) : m_value(value) {
+  A(obs::signal<void()>& signal, int& value) : m_value(value) {
     m_conn = signal.connect(&A::on_signal, this);
   }
 
 private:
   void on_signal() { ++m_value; }
 
-  scoped_connection m_conn;
+  obs::scoped_connection m_conn;
   int& m_value;
 };
 
 int main() {
-  signal<void()> signal;
+  obs::signal<void()> signal;
   int value = 0;
   {
     A a(signal, value);

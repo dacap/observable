@@ -7,10 +7,8 @@
 #include "obs/signal.h"
 #include "test.h"
 
-using namespace obs;
-
-signal<void()> sig;
-scoped_connection conn;
+obs::signal<void()> sig;
+obs::scoped_connection conn;
 
 void func() {
   conn = sig.connect(func);

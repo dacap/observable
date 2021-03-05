@@ -7,11 +7,9 @@
 #include "obs/signal.h"
 #include "test.h"
 
-using namespace obs;
-
 class A {
 public:
-  A(signal<void()>& sig) {
+  A(obs::signal<void()>& sig) {
     m_conn = sig.connect(&A::on_signal, this);
   }
 
@@ -20,11 +18,11 @@ private:
     m_conn.disconnect();
   }
 
-  connection m_conn;
+  obs::connection m_conn;
 };
 
 int main() {
-  signal<void()> signal;
+  obs::signal<void()> signal;
   {
     A a(signal);
     signal();

@@ -10,11 +10,9 @@
 #include <atomic>
 #include <vector>
 
-using namespace obs;
-
 int main() {
   std::vector<std::thread> threads;
-  signal<void()> sig;
+  obs::signal<void()> sig;
 
   // We need and atomic operator++()
   std::atomic<int> counter(0);
