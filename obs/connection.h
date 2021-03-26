@@ -1,5 +1,5 @@
 // Observable Library
-// Copyright (c) 2016 David Capello
+// Copyright (c) 2016-2021 David Capello
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -51,6 +51,12 @@ public:
   }
 
   ~scoped_connection() {
+    m_conn.disconnect();
+  }
+
+  // Just in case that we want to disconnect the signal in the middle
+  // of the scope.
+  void disconnect() {
     m_conn.disconnect();
   }
 
