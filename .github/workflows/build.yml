@@ -21,7 +21,7 @@ jobs:
             build_type: release
             benchmark: true
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
     - uses: seanmiddleditch/gha-setup-ninja@master
     - uses: ilammy/msvc-dev-cmd@v1
       if: runner.os == 'Windows'
