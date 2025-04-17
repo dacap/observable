@@ -1,7 +1,7 @@
 # Observable Library
-# Copyright (C) 2016-2021 David Capello
+# Copyright (C) 2016-2025 David Capello
 
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.15)
 
 project(observable CXX)
 option(OBSERVABLE_TESTS "Compile observable tests" ON)
