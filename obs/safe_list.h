@@ -1,5 +1,5 @@
 // Observable Library
-// Copyright (c) 2016-2017 David Capello
+// Copyright (c) 2016-2025 David Capello
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -284,7 +284,7 @@ public:
 
   bool empty() const {
     std::lock_guard<std::mutex> lock(m_mutex_nodes);
-    return (m_first == m_last);
+    return (m_first == nullptr);
   }
 
   void push_back(T* value) {

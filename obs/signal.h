@@ -1,5 +1,5 @@
 // Observable Library
-// Copyright (c) 2016 David Capello
+// Copyright (c) 2016-2025 David Capello
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -42,6 +42,8 @@ public:
 
   signal(const signal&) { }
   signal& operator=(const signal&) { return *this; }
+
+  operator bool() const { return !m_slots.empty(); }
 
   connection add_slot(slot_type* s) {
     m_slots.push_back(s);
@@ -93,6 +95,8 @@ public:
 
   signal(const signal&) { }
   signal& operator=(const signal&) { return *this; }
+
+  operator bool() const { return !m_slots.empty(); }
 
   connection add_slot(slot_type* s) {
     m_slots.push_back(s);

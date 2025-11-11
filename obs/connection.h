@@ -27,9 +27,7 @@ public:
 
   void disconnect();
 
-  operator bool() {
-    return (m_slot != nullptr);
-  }
+  operator bool() const { return (m_slot != nullptr); }
 
 private:
   signal_base* m_signal;

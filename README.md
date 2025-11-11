@@ -1,7 +1,7 @@
 Observable Library
 ==================
 
-*Copyright (C) 2016-2021 David Capello*
+*Copyright (C) 2016-2025 David Capello*
 
 [![build](https://github.com/dacap/observable/actions/workflows/build.yml/badge.svg)](https://github.com/dacap/observable/actions/workflows/build.yml)
 [![MIT Licensed](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE.txt)
