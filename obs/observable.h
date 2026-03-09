@@ -1,5 +1,5 @@
 // Observable Library
-// Copyright (c) 2016 David Capello
+// Copyright (c) 2016-present David Capello
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -12,7 +12,7 @@
 
 namespace obs {
 
-template<typename Observer>
+template<typename Observer, typename List = observers<Observer, default_list>>
 class observable {
 public:
 
@@ -34,8 +34,14 @@ public:
   }
 
 private:
-  observers<Observer> m_observers;
+  List m_observers;
 };
+
+template<typename Observer>
+using fast_observable = observable<Observer, fast_observers<Observer>>;
+
+template<typename Observer>
+using safe_observable = observable<Observer, safe_observers<Observer>>;
 
 } // namespace obs
 

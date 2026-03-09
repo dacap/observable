@@ -14,7 +14,7 @@
 #include <vector>
 
 int main() {
-  obs::signal<void()> sig;
+  obs::safe_signal<void()> sig;
   std::time_t t = std::time(nullptr);
 
   auto func =

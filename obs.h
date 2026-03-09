@@ -8,6 +8,7 @@
 #define OBS_H_INCLUDED
 #pragma once
 
+#include "obs/lists.h"
 #include "obs/observable.h"
 #include "obs/observers.h"
 #include "obs/signal.h"

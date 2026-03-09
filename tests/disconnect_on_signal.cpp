@@ -1,5 +1,5 @@
 // Observable Library
-// Copyright (c) 2016 David Capello
+// Copyright (c) 2016-present David Capello
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -9,7 +9,7 @@
 
 class A {
 public:
-  A(obs::signal<void()>& sig) {
+  A(obs::safe_signal<void()>& sig) {
     m_conn = sig.connect(&A::on_signal, this);
   }
 
@@ -22,7 +22,9 @@ private:
 };
 
 int main() {
-  obs::signal<void()> signal;
+  // We use the "safe" version because the fast one doesn't support
+  // disconnections from the same signal.
+  obs::safe_signal<void()> signal;
   {
     A a(signal);
     signal();

@@ -54,7 +54,7 @@ static void BM_ObsSignal(benchmark::State& state) {
 BENCHMARK(BM_ObsSignal)->Range(1, 1024);
 
 static void BM_ObsThreads(benchmark::State& state) {
-  obs::signal<void()> sig;
+  obs::safe_signal<void()> sig;
   for (auto _ : state) {
     state.PauseTiming();
     std::vector<std::thread> threads;

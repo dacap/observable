@@ -1,5 +1,5 @@
 // Observable Library
-// Copyright (c) 2016 David Capello
+// Copyright (c) 2016-present David Capello
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -7,7 +7,7 @@
 #include "obs/signal.h"
 #include "test.h"
 
-obs::signal<void()> sig;
+obs::safe_signal<void()> sig;
 obs::scoped_connection conn;
 
 void func() {

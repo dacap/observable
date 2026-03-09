@@ -9,7 +9,7 @@
 #pragma once
 
 #include "obs/connection.h"
-#include "obs/safe_list.h"
+#include "obs/lists.h"
 #include "obs/slot.h"
 
 #include <functional>
@@ -24,15 +24,15 @@ public:
 };
 
 // Signal for any kind of functions
-template<typename Callable>
+template<typename Callable, template<typename> class List = default_list>
 class signal { };
 
-template<typename R, typename...Args>
-class signal<R(Args...)> : public signal_base {
+template<typename R, typename...Args, template<typename> class List>
+class signal<R(Args...), List> : public signal_base {
 public:
   using result_type = R;
   using slot_type = slot<R(Args...)>;
-  using slot_list = safe_list<slot_type>;
+  using slot_list = List<slot_type>;
 
   signal() { }
   ~signal() {
@@ -67,10 +67,18 @@ public:
     m_slots.erase(static_cast<slot_type*>(slot));
   }
 
-  template<typename...Args2>
-  typename std::enable_if<!std::is_void<R>::value, R>::type
+  template<typename U = R, typename...Args2>
+  typename std::enable_if<std::is_void<U>::value, void>::type
   operator()(Args2&&...args) {
-    R result = R();
+    for (auto slot : m_slots)
+      if (slot)
+        (*slot)(std::forward<Args2>(args)...);
+  }
+
+  template<typename U = R, typename...Args2>
+  typename std::enable_if<!std::is_void<U>::value, U>::type
+  operator()(Args2&&...args) {
+    U result = {};
     for (auto slot : m_slots)
       if (slot)
         result = (*slot)(std::forward<Args2>(args)...);
@@ -81,55 +89,11 @@ protected:
   slot_list m_slots;
 };
 
-template<typename...Args>
-class signal<void(Args...)> : public signal_base {
-public:
-  using slot_type = slot<void(Args...)>;
-  using slot_list = safe_list<slot_type>;
+template<typename Callable>
+using fast_signal = signal<Callable, fast_list>;
 
-  signal() { }
-  ~signal() {
-    for (auto slot : m_slots)
-      delete slot;
-  }
-
-  signal(const signal&) { }
-  signal& operator=(const signal&) { return *this; }
-
-  operator bool() const { return !m_slots.empty(); }
-
-  connection add_slot(slot_type* s) {
-    m_slots.push_back(s);
-    return connection(this, s);
-  }
-
-  template<typename Function>
-  connection connect(Function&& f) {
-    return add_slot(new slot_type(std::forward<Function>(f)));
-  }
-
-  template<class Class>
-  connection connect(void (Class::*m)(Args...args), Class* t) {
-    return add_slot(new slot_type(
-                      [=](Args...args) {
-                        (t->*m)(std::forward<Args>(args)...);
-                      }));
-  }
-
-  virtual void disconnect_slot(slot_base* slot) override {
-    m_slots.erase(static_cast<slot_type*>(slot));
-  }
-
-  template<typename...Args2>
-  void operator()(Args2&&...args) {
-    for (auto slot : m_slots)
-      if (slot)
-        (*slot)(std::forward<Args2>(args)...);
-  }
-
-protected:
-  slot_list m_slots;
-};
+template<typename Callable>
+using safe_signal = signal<Callable, safe_list>;
 
 } // namespace obs
 

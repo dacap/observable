@@ -1,5 +1,5 @@
 // Observable Library
-// Copyright (c) 2016-2020 David Capello
+// Copyright (c) 2016-present David Capello
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -8,6 +8,7 @@
 #define OBS_SLOT_H_INCLUDED
 #pragma once
 
+#include <cassert>
 #include <functional>
 #include <type_traits>
 

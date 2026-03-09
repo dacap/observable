@@ -15,7 +15,6 @@
 #include <iterator>
 #include <mutex>
 #include <thread>
-#include <vector>
 
 namespace obs {
 

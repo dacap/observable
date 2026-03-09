@@ -1,5 +1,5 @@
 // Observable Library
-// Copyright (c) 2016-2018 David Capello
+// Copyright (c) 2016-present David Capello
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -7,6 +7,8 @@
 #include "obs/signal.h"
 #include "test.h"
 
+#include <atomic>
+#include <thread>
 #include <vector>
 
 const int N = 1;
@@ -30,7 +32,7 @@ public:
 };
 
 int main() {
-  obs::signal<void(int)> signal;
+  obs::safe_signal<void(int)> signal;
   std::vector<std::thread> threads;
 
   std::atomic<int> count = { 0 };

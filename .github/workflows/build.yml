@@ -8,7 +8,8 @@ jobs:
       matrix:
         os: [windows-latest, macos-latest, ubuntu-latest]
         build_type: [debug,release]
-        benchmark: [false]
+        benchmark: [tests]
+        fast: [safe, fast]
         sanitizer: [""]
         include:
           - os: macos-latest
@@ -19,7 +20,12 @@ jobs:
             sanitizer: "-fsanitize=address"
           - os: ubuntu-latest
             build_type: release
-            benchmark: true
+            benchmark: benchmark
+            fast: safe
+          - os: ubuntu-latest
+            build_type: release
+            benchmark: benchmark
+            fast: fast
     steps:
     - uses: actions/checkout@v4
     - uses: aseprite/get-ninja@main
@@ -28,15 +34,26 @@ jobs:
     - name: Generating Makefiles
       shell: bash
       run: |
+        if [[ "${{ matrix.benchmark }}" == "benchmark" ]] ; then
+          OBSERVABLE_BENCHMARKS=ON
+        else
+          OBSERVABLE_BENCHMARKS=OFF
+        fi
+        if [[ "${{ matrix.fast }}" == fast ]] ; then
+          OBSERVABLE_FAST_LIST=ON
+        else
+          OBSERVABLE_FAST_LIST=OFF
+        fi
         cmake . -G Ninja \
           -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
           -DCMAKE_CXX_FLAGS=${{ matrix.sanitizer }}  \
           -DCMAKE_EXE_LINKER_FLAGS=${{ matrix.sanitizer }} \
-          -DOBSERVABLE_BENCHMARKS=${{ matrix.benchmark }}
+          -DOBSERVABLE_FAST_LIST=$OBSERVABLE_FAST_LIST \
+          -DOBSERVABLE_BENCHMARKS=$OBSERVABLE_BENCHMARKS
     - name: Compiling
       run: cmake --build .
     - name: Running Tests
       shell: bash
       run: |
         ctest --output-on-failure
-        if [[ "${{ matrix.benchmark }}" == "true" ]] ; then ./benchmarks/obs_benchmarks ; fi
+        if [[ "${{ matrix.benchmark }}" == "benchmark" ]] ; then ./benchmarks/obs_benchmarks ; fi

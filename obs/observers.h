@@ -8,15 +8,15 @@
 #define OBS_OBSERVERS_H_INCLUDED
 #pragma once
 
-#include "obs/safe_list.h"
+#include "obs/lists.h"
 
 namespace obs {
 
-template<typename T>
+template<typename T, template<typename> class List = default_list>
 class observers {
 public:
   using observer_type = T;
-  using list_type = safe_list<observer_type>;
+  using list_type = List<observer_type>;
   using iterator = typename list_type::iterator;
 
   bool empty() const { return m_observers.empty(); }
@@ -41,6 +41,12 @@ public:
 private:
   list_type m_observers;
 };
+
+template<typename T>
+using fast_observers = observers<T, fast_list>;
+
+template<typename T>
+using safe_observers = observers<T, safe_list>;
 
 } // namespace obs
 

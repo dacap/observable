@@ -1,5 +1,5 @@
 // Observable Library
-// Copyright (c) 2016 David Capello
+// Copyright (c) 2016-present David Capello
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -13,7 +13,7 @@ public:
   virtual void on_event() { }
 };
 
-class Observable : public obs::observable<Observer> {
+class Observable : public obs::safe_observable<Observer> {
 public:
   Observable() { }
 };

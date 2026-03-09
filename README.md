@@ -1,7 +1,7 @@
 Observable Library
 ==================
 
-*Copyright (C) 2016-2025 David Capello*
+*Copyright (C) 2016-present David Capello*
 
 [![build](https://github.com/dacap/observable/actions/workflows/build.yml/badge.svg)](https://github.com/dacap/observable/actions/workflows/build.yml)
 [![MIT Licensed](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE.txt)
@@ -70,9 +70,21 @@ int main() {
 }
 ```
 
-Tested Compilers
+Safe vs Fast
 ----------------
 
-* Visual Studio 2015
-* Xcode 7.3.1 (`-std=c++11`)
-* GCC 4.8.4 (`-std=c++11`)
+There are two variants of signals and observers:
+
+* `obs::safe_signal` vs `obs::fast_signal`
+* `obs::safe_observers` vs `obs::fast_observers`
+
+The only difference between both is that the "fast" version uses
+`obs::fast_list` instead of `obs::safe_list`, where the former keeps
+track of slots with a `std::vector` and the later one is a thread-safe
+version list to connect/disconnect slots from different threads.
+
+By default and for backward compatibility, `obs::signal` and
+`obs::observers` use the safe version, but you can enable the
+`OBSERVABLE_FAST_LIST` option to switch from `obs::safe_list` to
+`obs::fast_list` which is recommended for most cases (e.g. you don't
+need to do strange connections/disconnections as in [tests](tests)).
