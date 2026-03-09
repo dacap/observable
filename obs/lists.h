@@ -21,6 +21,19 @@ namespace obs {
   using default_list = safe_list<T>;
 #endif
 
+#ifdef _DEBUG
+template<typename List>
+struct Iterating {
+  List& m_list;
+  Iterating(List& list) : m_list(list) {
+    m_list.set_iterating(true);
+  }
+  ~Iterating() {
+    m_list.set_iterating(false);
+  }
+};
+#endif
+
 } // namespace obs
 
 #endif

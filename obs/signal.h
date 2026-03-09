@@ -70,6 +70,9 @@ public:
   template<typename U = R, typename...Args2>
   typename std::enable_if<std::is_void<U>::value, void>::type
   operator()(Args2&&...args) {
+#ifdef _DEBUG
+    Iterating<slot_list> flag(m_slots);
+#endif
     for (auto slot : m_slots)
       if (slot)
         (*slot)(std::forward<Args2>(args)...);
@@ -78,6 +81,9 @@ public:
   template<typename U = R, typename...Args2>
   typename std::enable_if<!std::is_void<U>::value, U>::type
   operator()(Args2&&...args) {
+#ifdef _DEBUG
+    Iterating<slot_list> flag(m_slots);
+#endif
     U result = {};
     for (auto slot : m_slots)
       if (slot)
