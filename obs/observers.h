@@ -1,5 +1,5 @@
 // Observable Library
-// Copyright (c) 2016 David Capello
+// Copyright (c) 2016-present David Capello
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -15,9 +15,9 @@ namespace obs {
 template<typename T>
 class observers {
 public:
-  typedef T observer_type;
-  typedef safe_list<observer_type> list_type;
-  typedef typename list_type::iterator iterator;
+  using observer_type = T;
+  using list_type = safe_list<observer_type>;
+  using iterator = typename list_type::iterator;
 
   bool empty() const { return m_observers.empty(); }
   std::size_t size() const { return m_observers.size(); }

@@ -1,5 +1,5 @@
 // Observable Library
-// Copyright (c) 2016-2025 David Capello
+// Copyright (c) 2016-present David Capello
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -142,11 +142,11 @@ public:
   public:
     friend struct node;
 
-    typedef T*                        value_type;
-    typedef std::ptrdiff_t            difference_type;
-    typedef T**                       pointer;
-    typedef T*&                       reference;
-    typedef std::forward_iterator_tag iterator_category;
+    using value_type = T*;
+    using difference_type = std::ptrdiff_t;
+    using pointer = T**;
+    using reference = T*&;
+    using iterator_category = std::forward_iterator_tag;
 
     iterator(safe_list& list, node* node)
       : m_list(list),

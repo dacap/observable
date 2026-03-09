@@ -1,5 +1,5 @@
 // Observable Library
-// Copyright (c) 2016-2025 David Capello
+// Copyright (c) 2016-present David Capello
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -30,9 +30,9 @@ class signal { };
 template<typename R, typename...Args>
 class signal<R(Args...)> : public signal_base {
 public:
-  typedef R result_type;
-  typedef slot<R(Args...)> slot_type;
-  typedef safe_list<slot_type> slot_list;
+  using result_type = R;
+  using slot_type = slot<R(Args...)>;
+  using slot_list = safe_list<slot_type>;
 
   signal() { }
   ~signal() {
@@ -84,8 +84,8 @@ protected:
 template<typename...Args>
 class signal<void(Args...)> : public signal_base {
 public:
-  typedef slot<void(Args...)> slot_type;
-  typedef safe_list<slot_type> slot_list;
+  using slot_type = slot<void(Args...)>;
+  using slot_list = safe_list<slot_type>;
 
   signal() { }
   ~signal() {
