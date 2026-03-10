@@ -32,10 +32,7 @@ public:
 
   template<typename ...Args>
   void notify_observers(void (observer_type::*method)(Args...), Args ...args) {
-#ifdef _DEBUG
-    Iterating<list_type> flag(m_observers);
-#endif
-    for (auto observer : m_observers) {
+    for (auto observer : iterate_list(m_observers)) {
       if (observer)
         (observer->*method)(std::forward<Args>(args)...);
     }

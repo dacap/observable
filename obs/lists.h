@@ -21,18 +21,13 @@ namespace obs {
   using default_list = safe_list<T>;
 #endif
 
-#ifdef _DEBUG
-template<typename List>
-struct Iterating {
-  List& m_list;
-  Iterating(List& list) : m_list(list) {
-    m_list.set_iterating(true);
-  }
-  ~Iterating() {
-    m_list.set_iterating(false);
-  }
-};
-#endif
+template<typename T>
+safe_list<T>& iterate_list(safe_list<T>& list) { return list; }
+
+// To iterate a fast_list<> we need to copy it (so we can disconnect
+// from the same signal).
+template<typename T>
+fast_list<T> iterate_list(fast_list<T>& list) { return list; }
 
 } // namespace obs
 

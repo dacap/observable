@@ -7,7 +7,7 @@
 #include "obs/signal.h"
 #include "test.h"
 
-obs::safe_signal<void()> sig;
+obs::signal<void()> sig;
 obs::scoped_connection conn;
 
 void func() {

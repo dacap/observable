@@ -359,13 +359,6 @@ public:
       delete_nodes(false);
   }
 
-#ifndef NDEBUG
-  void set_iterating(const bool) {
-    // No need to set a flag here for debugging purposes as we support
-    // calling erase() member function when we're iterating the items.
-  }
-#endif
-
 private:
   // Deletes nodes from the list. If "all" is true, deletes all nodes,
   // if it's false, it deletes only nodes with value == nullptr, which

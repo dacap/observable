@@ -9,7 +9,7 @@
 
 class A {
 public:
-  A(obs::safe_signal<void()>& sig) {
+  A(obs::signal<void()>& sig) {
     m_conn = sig.connect(&A::on_signal, this);
   }
 
@@ -22,9 +22,7 @@ private:
 };
 
 int main() {
-  // We use the "safe" version because the fast one doesn't support
-  // disconnections from the same signal.
-  obs::safe_signal<void()> signal;
+  obs::signal<void()> signal;
   {
     A a(signal);
     signal();

@@ -13,7 +13,7 @@ public:
   virtual void on_event() { }
 };
 
-class Observable : public obs::safe_observable<Observer> {
+class Observable : public obs::observable<Observer> {
 public:
   Observable() { }
 };
